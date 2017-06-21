@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="iv_logo_width">192dp</dimen>
+    <dimen name="iv_logo_height">192dp</dimen>
+    <dimen name="iv_logo_margin">84dp</dimen>
+    <dimen name="btn_add_margin">24dp</dimen>
+    <dimen name="btn_add_padding_side">60dp</dimen>
+    <dimen name="btn_add_padding_top_and_bottom">8dp</dimen>
+    <dimen name="btn_add_text_size">28sp</dimen>
+    <dimen name="btn_add_bg_radius_green">2dp</dimen>
+    <dimen name="btn_add_bg_radius_purple">2dp</dimen>
+    <dimen name="add_btn_stroke_width_purple">1dp</dimen>
+</resources>
