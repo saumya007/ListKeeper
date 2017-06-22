@@ -10,4 +10,6 @@
     <dimen name="btn_add_bg_radius_green">2dp</dimen>
     <dimen name="btn_add_bg_radius_purple">2dp</dimen>
     <dimen name="add_btn_stroke_width_purple">1dp</dimen>
+    <dimen name="title_margin_vertical">36dp</dimen>
+    <dimen name="title_text_size">18sp</dimen>
 </resources>

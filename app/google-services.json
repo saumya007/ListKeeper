@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "81802329286",
+    "firebase_url": "https://sundaypyjamas-837bc.firebaseio.com",
+    "project_id": "sundaypyjamas-837bc",
+    "storage_bucket": "sundaypyjamas-837bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81802329286:android:f926510988c3f90e",
+        "android_client_info": {
+          "package_name": "com.example.saumyamehta.listkeeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81802329286-covbelf6cjpoigd43l2eb4hjk7sqnsl7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYHckz4H_kThVNTJfAYBt_fAYYjXYEgW4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
