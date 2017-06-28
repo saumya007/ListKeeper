@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/bg_row_drop_completed"/>
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_arrow_drop_up_normal">
+
+    </item>
+</layer-list>

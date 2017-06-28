@@ -9,4 +9,7 @@
     <string name="completed">Completed</string>
     <string name="incomplete">Incomplete</string>
     <string name="no_items_to_display">No items to display</string>
+    <string name="_2017">2017</string>
+    <string name="_01">01</string>
+    <string name="jan">Jan</string>
 </resources>

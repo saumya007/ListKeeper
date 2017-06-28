@@ -1,7 +1,6 @@
 package com.example.saumyamehta.listkeeper;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.saumyamehta.listkeeper.adapters.AdapterDrops;
@@ -23,9 +21,9 @@ import com.example.saumyamehta.listkeeper.adapters.CompleteListener;
 import com.example.saumyamehta.listkeeper.adapters.Divider;
 import com.example.saumyamehta.listkeeper.adapters.Filter;
 import com.example.saumyamehta.listkeeper.adapters.MarkListener;
+import com.example.saumyamehta.listkeeper.adapters.ResetListener;
 import com.example.saumyamehta.listkeeper.adapters.SimpleTouchCallBack;
 import com.example.saumyamehta.listkeeper.beans.Drops;
-import com.example.saumyamehta.listkeeper.extras.Util;
 import com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -35,8 +33,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -63,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onComplete(int position) {
             mAdapterdrops.markComplete(position);
+
+        }
+    };
+    private ResetListener mResetListener = new ResetListener() {
+        @Override
+        public void onReset() {
+            AppBucketDrops.save(MainActivity.this, Filter.NONE);
+            loadResults(Filter.NONE);
         }
     };
 
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, this, mResults, mAddListener, mMarkListener);
+            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, this, mResults, mAddListener, mMarkListener, mResetListener);
 
             mBucketRecyclerView.setAdapter(mAdapterdrops);
             mAdapterdrops.setAddlistener(mAddListener);
@@ -193,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
             mAdapterdrops.setHasStableIds(true);
             mBucketRecyclerView.setAdapter(mAdapterdrops);
             mAdapterdrops.setAddlistener(mAddListener);
@@ -270,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("ds", ds + "");
                             Drops drops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString()), Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
                             mResults.add(drops);
-                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                             mAdapterdrops.setHasStableIds(true);
                             mBucketRecyclerView.setAdapter(mAdapterdrops);
                             mAdapterdrops.setAddlistener(mAddListener);
@@ -307,10 +311,10 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < descen.size(); i++) {
                             mResults.add(descen.get(descen.size() - i - 1));
                         }
-                        mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
-
-                        mBucketRecyclerView.setAdapter(mAdapterdrops);
+                        mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                         mAdapterdrops.setHasStableIds(true);
+                        mBucketRecyclerView.setAdapter(mAdapterdrops);
+
 
                         mAdapterdrops.setAddlistener(mAddListener);
                         SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
@@ -337,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             b = Boolean.parseBoolean(ds.child("completed").getValue().toString());
                             Log.e("b", Boolean.parseBoolean(ds.child("completed").getValue().toString()) + "");
-                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                             initBackgroundImage();
                             mAdapterdrops.setHasStableIds(true);
 
@@ -375,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
                             boolean b = Boolean.parseBoolean(ds.child("completed").getValue().toString());
-                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+                            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                             mAdapterdrops.setHasStableIds(true);
 
                             Log.e("b", b + "");
@@ -404,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case Filter.NONE:
                 mResults.clear();
-                mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+                mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                 mAdapterdrops.setHasStableIds(true);
 
                 mAdapterdrops.notifyDataSetChanged();
@@ -416,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
                             Drops drops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString()), Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
                             if (!mResults.contains(drops)) {
                                 mResults.add(drops);
-                                mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener);
+                                mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                                 mAdapterdrops.setHasStableIds(true);
 
                                 mBucketRecyclerView.setAdapter(mAdapterdrops);

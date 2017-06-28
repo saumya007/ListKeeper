@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.saumyamehta.listkeeper.MainActivity;
 import com.example.saumyamehta.listkeeper.R;
 import com.example.saumyamehta.listkeeper.beans.Drops;
 import com.example.saumyamehta.listkeeper.extras.Util;
@@ -35,6 +36,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener {
+    private ResetListener mResetListener;
     private LayoutInflater mInflater;
     private ArrayList<Drops> mResults = new ArrayList<>();
     private ArrayList<Drops> mResults1 = new ArrayList<>();
@@ -57,7 +59,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.mDatabase = mDatabase;
     }
 
-    public AdapterDrops(BucketRecyclerView mrecyclerview, Context context, ArrayList<Drops> results, AdapterListener mAddlistener, MarkListener markListener) {
+    public AdapterDrops(BucketRecyclerView mrecyclerview, Context context, ArrayList<Drops> results, AdapterListener mAddlistener, MarkListener markListener, ResetListener mResetListener) {
         mInflater = LayoutInflater.from(context);
         mResults = results;
         this.mAddlistener = mAddlistener;
@@ -65,6 +67,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mFilteroption = AppBucketDrops.load(context);
         mRecycler = mrecyclerview;
         this.context = context;
+        this.mResetListener = mResetListener;
     }
 
     @Override
@@ -95,8 +98,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public long getItemId(int position) {
-        if(position<mResults.size())
-        {
+        if (position < mResults.size()) {
             return mResults.get(position).getAdded();
         }
         return RecyclerView.NO_ID;
@@ -142,28 +144,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     mRecycler.removeViewAt(position);
                     mResults.remove(position);
                     notifyItemRemoved(position);
-
-//                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Drops");
-//                    mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
-//                                Drops drops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString()),
-//                                        Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").toString()));
-//                                mResults.add(drops);
-//                                notifyDataSetChanged();
-//                                Log.e("res size", mResults.size() + "");
-//                            }
-//
-//                            Log.e("items", getItemCount() + "");
-//
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(DatabaseError databaseError) {
-//
-//                        }
-//                    });
+                    resetFilterifempty();
 
                 }
 
@@ -173,6 +154,12 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 }
             });
 
+        }
+    }
+
+    private void resetFilterifempty() {
+        if (mResults.isEmpty() && (mFilteroption == Filter.COMPLETED || mFilteroption == Filter.INCOMPLETE)) {
+            mResetListener.onReset();
         }
     }
 
@@ -193,6 +180,13 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     }
                     mResults.get(position).setCompleted(true);
                     notifyItemChanged(position);
+                    int filteroption = AppBucketDrops.load(context);
+                    if (filteroption == Filter.INCOMPLETE) {
+                        mRecycler.removeViewAt(position);
+                        mResults.remove(position);
+                        notifyDataSetChanged();
+                        mRecycler.invalidate();
+                    }
                 }
 
                 @Override

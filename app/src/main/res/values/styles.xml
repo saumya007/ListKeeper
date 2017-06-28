@@ -8,4 +8,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="datepickeritemstyle">
+        <item name="android:layout_width">@dimen/timetext_width</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_date_picker</item>
+        <item name="android:textColor">@color/bg_row_drop_completed</item>
+        <item name="android:textSize">@dimen/text_size_time</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
 </resources>

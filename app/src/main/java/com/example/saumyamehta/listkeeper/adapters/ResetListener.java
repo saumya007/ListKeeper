@@ -5,4 +5,5 @@ package com.example.saumyamehta.listkeeper.adapters;
  */
 
 public interface ResetListener {
+    void onReset();
 }
