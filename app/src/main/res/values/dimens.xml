@@ -12,4 +12,13 @@
     <dimen name="add_btn_stroke_width_purple">1dp</dimen>
     <dimen name="title_margin_vertical">36dp</dimen>
     <dimen name="title_text_size">18sp</dimen>
+    <dimen name="et_drop_padding">16dp</dimen>
+    <dimen name="btn_close_dimen">12dp</dimen>
+    <dimen name="row_drops_ll_padding">22dp</dimen>
+    <dimen name="iv_drops_dimen">12dp</dimen>
+    <dimen name="tv_what_side_padding">22dp</dimen>
+    <dimen name="btn_completed_textsize">24sp</dimen>
+    <dimen name="parent_dialog_mark_padding">24dp</dimen>
+    <dimen name="no_item_top_padding">22dp</dimen>
+    <dimen name="no_items_padding_bottom">22dp</dimen>
 </resources>

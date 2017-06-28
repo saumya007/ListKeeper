@@ -6,24 +6,26 @@
     android:layout_height="match_parent"
     tools:context="com.example.saumyamehta.listkeeper.MainActivity">
 
+    <ImageView
+        android:id="@+id/iv_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <ImageView
-        android:id="@+id/iv_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar" />
 
-    <android.support.v7.widget.RecyclerView
+    <com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar">
 
-    </android.support.v7.widget.RecyclerView>
+    </com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView>
 
-    <include layout="@layout/empty_list" />
+    <include
+        android:id="@+id/empty_drops"
+        layout="@layout/empty_list" />
 
 </RelativeLayout>

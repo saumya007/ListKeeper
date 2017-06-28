@@ -3,6 +3,7 @@ package com.example.saumyamehta.listkeeper;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,8 @@ import com.example.saumyamehta.listkeeper.beans.Drops;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Calendar;
 
 //import io.realm.Realm;import io.realm.RealmConfiguration;
 
@@ -29,6 +32,7 @@ public class DialogAdd extends DialogFragment {
     private DatePicker mInputWhen;
     private Button mButtonAdd;
     private DatabaseReference mDatabase;
+
     public DialogAdd() {
     }
 
@@ -38,6 +42,7 @@ public class DialogAdd extends DialogFragment {
             int id = v.getId();
             switch (id) {
                 case R.id.btn_add_it:
+
                     addAction();
                     break;
                 case R.id.btnClose:
@@ -50,14 +55,24 @@ public class DialogAdd extends DialogFragment {
 
     private void addAction() {
         String what = mInputWhat.getText().toString();
+        String date = mInputWhen.getDayOfMonth() + "/" + mInputWhen.getMonth() + "/" + mInputWhen.getYear();
+        Calendar mCalendar = Calendar.getInstance();
+        mCalendar.set(Calendar.DAY_OF_MONTH, mInputWhen.getDayOfMonth());
+        mCalendar.set(Calendar.MONTH, mInputWhen.getMonth());
+        mCalendar.set(Calendar.YEAR, mInputWhen.getYear());
+        mCalendar.set(Calendar.HOUR, 0);
+        mCalendar.set(Calendar.MINUTE, 0);
+        mCalendar.set(Calendar.SECOND, 0);
         long now = System.currentTimeMillis();
+
 //        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
 //        Realm.setDefaultConfiguration(realmConfiguration);
 //        Realm realm = Realm.getDefaultInstance();
-        Drops drop = new Drops(what, now, 0, false);
+        Drops drop = new Drops(what, now, mCalendar.getTimeInMillis(), false);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Drops").push().setValue(drop);
-//        realm.copyToRealm(drop);
+        Log.e("what", what);
+        //        realm.copyToRealm(drop);
 //        realm.commitTransaction();
 //        realm.close();
     }

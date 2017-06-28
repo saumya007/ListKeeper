@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="22dp"
+    android:padding="@dimen/row_drops_ll_padding"
     android:background="@drawable/bg_row_drop">
 
     <ImageView
-        android:layout_width="12dp"
-        android:layout_height="12dp"
+        android:layout_width="@dimen/iv_drops_dimen"
+        android:layout_height="@dimen/iv_drops_dimen"
         android:background="@null"
         android:id="@+id/iv_drop"
         android:src="@drawable/ic_drop" />
@@ -18,8 +18,8 @@
         android:id ="@+id/tv_what"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingLeft="22dp"
-        android:paddingRight="22dp" />
+        android:paddingLeft="@dimen/tv_what_side_padding"
+        android:paddingRight="@dimen/tv_what_side_padding" />
 
     <TextView
         android:id= "@+id/tv_when"
