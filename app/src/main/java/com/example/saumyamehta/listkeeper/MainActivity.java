@@ -1,17 +1,23 @@
 package com.example.saumyamehta.listkeeper;
 
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.saumyamehta.listkeeper.adapters.AdapterDrops;
@@ -33,6 +39,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
+import static android.support.v4.app.DialogFragment.STYLE_NO_FRAME;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -76,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mResults = new ArrayList<>();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        TextView mTitle = (TextView) mToolbar.findViewById(R.id.toolbar_title);
+        AppBucketDrops.setRalewayThin(getApplicationContext(),mTitle);
+        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
         mButton = (Button) findViewById(R.id.button_add);
         mBucketRecyclerView = (BucketRecyclerView) findViewById(R.id.recycler);
@@ -220,11 +231,21 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
     }
-
+    private void applyFontToMenuItem(MenuItem mi) {
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Raleway-Thin.ttf");
+        SpannableString mNewTitle = new SpannableString(mi.getTitle());
+        mNewTitle.setSpan(new CustomTypefaceSpan("" , font), 0 , mNewTitle.length(),  Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mi.setTitle(mNewTitle);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        for (int i=0;i<menu.size();i++) {
+            MenuItem mi = menu.getItem(i);
+
+            applyFontToMenuItem(mi);
+        }
+            return true;
     }
 
     @Override

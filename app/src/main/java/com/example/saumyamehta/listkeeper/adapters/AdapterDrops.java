@@ -2,6 +2,7 @@ package com.example.saumyamehta.listkeeper.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -215,6 +216,8 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             itemView.setOnClickListener(this);
             mMarklistener = markListener;
             mItemView = itemView;
+            AppBucketDrops.setRalewayThin(mContext, mTextwhat, mTextwhen);
+
         }
 
         @Override
@@ -259,6 +262,8 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             super(itemView);
             mAddbtn = (Button) itemView.findViewById(R.id.footer_btn);
             mAddbtn.setOnClickListener(this);
+            AppBucketDrops.setRalewayThin(context, mAddbtn);
+
         }
 
         @Override

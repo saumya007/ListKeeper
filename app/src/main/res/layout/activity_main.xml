@@ -13,7 +13,8 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        />
 
 
     <com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView

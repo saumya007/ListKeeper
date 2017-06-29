@@ -21,6 +21,8 @@
     <dimen name="parent_dialog_mark_padding">24dp</dimen>
     <dimen name="no_item_top_padding">22dp</dimen>
     <dimen name="no_items_padding_bottom">22dp</dimen>
-    <dimen name="timetext_width">96dp</dimen>
+    <dimen name="timetext_width">92dp</dimen>
     <dimen name="text_size_time">24sp</dimen>
+    <dimen name="bpv_space">16dp</dimen>
+    <dimen name="drawable_padding">16dp</dimen>
 </resources>

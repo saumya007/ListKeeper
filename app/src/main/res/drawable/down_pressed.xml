@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    >
     <item>
         <shape>
-            <solid android:color="@color/bg_row_drop_completed"/>
+            <solid android:color="@android:color/transparent" />
+            <size android:width="96dp"/>
+            <padding android:top="-15dp"
+                android:bottom="-15dp"/>
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_arrow_drop_down_normal">
-
+    <item >
+        <bitmap android:src="@drawable/ic_arrow_drop_down_pressed" android:gravity="center"></bitmap>
     </item>
 </layer-list>

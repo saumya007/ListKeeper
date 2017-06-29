@@ -7,12 +7,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+import com.example.saumyamehta.listkeeper.adapters.AppBucketDrops;
 import com.example.saumyamehta.listkeeper.beans.Drops;
+import com.example.saumyamehta.listkeeper.widgets.BucketPickerView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -29,7 +33,8 @@ import java.util.Calendar;
 public class DialogAdd extends DialogFragment {
     private EditText mInputWhat;
     private ImageButton mBtnClose;
-    private DatePicker mInputWhen;
+    private TextView title;
+    private BucketPickerView mInputWhen;
     private Button mButtonAdd;
     private DatabaseReference mDatabase;
 
@@ -55,20 +60,12 @@ public class DialogAdd extends DialogFragment {
 
     private void addAction() {
         String what = mInputWhat.getText().toString();
-        String date = mInputWhen.getDayOfMonth() + "/" + mInputWhen.getMonth() + "/" + mInputWhen.getYear();
-        Calendar mCalendar = Calendar.getInstance();
-        mCalendar.set(Calendar.DAY_OF_MONTH, mInputWhen.getDayOfMonth());
-        mCalendar.set(Calendar.MONTH, mInputWhen.getMonth());
-        mCalendar.set(Calendar.YEAR, mInputWhen.getYear());
-        mCalendar.set(Calendar.HOUR, 0);
-        mCalendar.set(Calendar.MINUTE, 0);
-        mCalendar.set(Calendar.SECOND, 0);
         long now = System.currentTimeMillis();
 
 //        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
 //        Realm.setDefaultConfiguration(realmConfiguration);
 //        Realm realm = Realm.getDefaultInstance();
-        Drops drop = new Drops(what, now, mCalendar.getTimeInMillis(), false);
+        Drops drop = new Drops(what, now, mInputWhen.getTime(), false);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Drops").push().setValue(drop);
         Log.e("what", what);
@@ -81,6 +78,7 @@ public class DialogAdd extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.dialog_add, container, false);
     }
 
@@ -88,10 +86,18 @@ public class DialogAdd extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mInputWhat = (EditText) view.findViewById(R.id.et_drop);
+        title = (TextView)view.findViewById(R.id.title);
         mBtnClose = (ImageButton) view.findViewById(R.id.btnClose);
-        mInputWhen = (DatePicker) view.findViewById(R.id.date_picker1);
+        mInputWhen = (BucketPickerView) view.findViewById(R.id.date_picker1);
         mButtonAdd = (Button) view.findViewById(R.id.btn_add_it);
         mBtnClose.setOnClickListener(mButtonListener);
         mButtonAdd.setOnClickListener(mButtonListener);
+        AppBucketDrops.setRalewayThin(getActivity(),mInputWhat,mButtonAdd,title);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL,R.style.DialogTheme);
     }
 }

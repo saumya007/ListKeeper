@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape>
-            <solid android:color="@color/bg_row_drop_completed"/>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        >
+        <shape
+            >
+            <solid android:color="@color/bg_row_drop_completed"
+                />
+            <size android:width="96dp"/>
+            <padding android:top="-15dp"
+                android:bottom="-15dp"/>
+            <corners android:bottomLeftRadius="@dimen/btn_add_bg_radius_purple" android:bottomRightRadius="@dimen/btn_add_bg_radius_purple"/>
+
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_arrow_drop_down_normal">
+    <item
 
+        >
+        <bitmap android:src="@drawable/_ic_arrow_drop_down_normal" android:gravity="center"></bitmap>
     </item>
 </layer-list>

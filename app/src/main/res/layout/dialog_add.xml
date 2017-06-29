@@ -1,49 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dialog">
+    android:background="@color/bg_dialog"
+    >
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/title_margin_vertical"
-        android:layout_marginTop="@dimen/title_margin_vertical"
-        android:text="@string/str_add_drop"
-        android:textSize="@dimen/title_text_size" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
 
-    <ImageButton
-        android:id="@+id/btnClose"
-        android:layout_width="@dimen/btn_close_dimen"
-        android:layout_height="@dimen/btn_close_dimen"
-        android:scaleType="fitCenter"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/title"
-        android:layout_below="@+id/title"
-        android:background="@null"
-        android:src="@drawable/ic_close" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/title_margin_vertical"
+            android:layout_marginTop="@dimen/title_margin_vertical"
+            android:text="@string/str_add_drop"
+            android:textSize="@dimen/title_text_size" />
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="@dimen/btn_close_dimen"
+            android:layout_height="@dimen/btn_close_dimen"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/title"
+            android:layout_below="@+id/title"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_close" />
 
         <EditText
             android:id="@+id/et_drop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_et_drop"
-            android:inputType="textVisiblePassword"
             android:layout_below="@+id/title"
+            android:hint=   "@string/hint_et_drop"
+            android:background="@drawable/bg_et_drop"
+            android:inputType="textVisiblePassword"
             android:padding="@dimen/et_drop_padding" />
 
-    <DatePicker
-        android:id="@+id/date_picker1"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_below="@+id/et_drop"></DatePicker>
+        <com.example.saumyamehta.listkeeper.widgets.BucketPickerView
+            android:id="@+id/date_picker1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="64dp"
+            android:layout_marginTop="64dp"
+            android:layout_below="@+id/et_drop"></com.example.saumyamehta.listkeeper.widgets.BucketPickerView>
 
-    <Button
-        android:id="@+id/btn_add_it"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/date_picker1"
-        android:text="@string/str_add_it"
-        android:textAllCaps="false" />
-</RelativeLayout>
+        <Button
+            android:id="@+id/btn_add_it"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/date_picker1"
+            android:text="@string/str_add_it"
+            android:textSize="@dimen/title_text_size"
+            android:background="@drawable/btn_addit"
+            android:textAllCaps="false" />
+    </RelativeLayout>
+</ScrollView>

@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
+    <item
+
+        >
         <shape>
             <solid android:color="@color/bg_row_drop_completed"/>
+            <size android:width="96dp"
+                />
+            <padding android:top="-15dp"
+                android:bottom="-15dp"/>
+            <corners android:topLeftRadius="@dimen/btn_add_bg_radius_purple" android:topRightRadius="@dimen/btn_add_bg_radius_purple"/>
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_arrow_drop_up_normal">
-
+    <item
+        >
+        <bitmap android:src="@drawable/_ic_arrow_drop_up_normal" android:gravity="center_vertical"
+            ></bitmap>
     </item>
 </layer-list>

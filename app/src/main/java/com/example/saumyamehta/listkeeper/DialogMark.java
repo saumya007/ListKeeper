@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.saumyamehta.listkeeper.adapters.AppBucketDrops;
 import com.example.saumyamehta.listkeeper.adapters.CompleteListener;
 
 /**
@@ -61,10 +62,19 @@ public class DialogMark extends DialogFragment {
         mBtnCompleted = (Button) view.findViewById(R.id.btn_completed);
         mBtnClose.setOnClickListener(mButtonListener);
         mBtnCompleted.setOnClickListener(mButtonListener);
+        AppBucketDrops.setRalewayThin(getActivity(), mBtnCompleted);
+
 
     }
 
     public void setCompleteListener(CompleteListener mCompleteListener) {
         this.mCompleteListener = mCompleteListener;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL,R.style.DialogTheme);
+
     }
 }
