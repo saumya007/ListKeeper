@@ -21,6 +21,8 @@ import com.example.saumyamehta.listkeeper.R;
 import com.example.saumyamehta.listkeeper.beans.Drops;
 import com.example.saumyamehta.listkeeper.extras.Util;
 import com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,6 +54,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private MarkListener markListener;
     private int mFilteroption;
     private BucketRecyclerView mRecycler;
+    private FirebaseUser mUser;
     private Context context;
 
     public AdapterDrops(Context context, ArrayList<Drops> results, DatabaseReference mDatabase) {
@@ -62,6 +65,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public AdapterDrops(BucketRecyclerView mrecyclerview, Context context, ArrayList<Drops> results, AdapterListener mAddlistener, MarkListener markListener, ResetListener mResetListener) {
         mInflater = LayoutInflater.from(context);
+        FirebaseDatabase.getInstance().getReference().keepSynced(true);
         mResults = results;
         this.mAddlistener = mAddlistener;
         this.markListener = markListener;
@@ -69,6 +73,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mRecycler = mrecyclerview;
         this.context = context;
         this.mResetListener = mResetListener;
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
@@ -128,7 +133,9 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (position < mResults.size()) {
             final boolean[] removed = {false};
             Log.e("oh", "oh");
-            mDatabase = FirebaseDatabase.getInstance().getReference().child("Drops");
+            if (mUser != null) {
+                mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+            }
             mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -146,7 +153,24 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     mResults.remove(position);
                     notifyItemRemoved(position);
                     resetFilterifempty();
+                    mResults.clear();
+                    notifyDataSetChanged();
+                    mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot mds : dataSnapshot.getChildren()) {
+                                Drops ds = new Drops(mds.child("what").getValue().toString(), Long.parseLong(mds.child("added").getValue().toString()),
+                                        Long.parseLong(mds.child("when").getValue().toString()), Boolean.parseBoolean(mds.child("completed").getValue().toString()));
+                                mResults.add(ds);
+                                notifyDataSetChanged();
+                            }
+                        }
 
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -166,7 +190,10 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public void markComplete(final int position) {
         if (position < mResults.size()) {
-            mDatabase = FirebaseDatabase.getInstance().getReference().child("Drops");
+            if (mUser != null) {
+                mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+            }
+
             mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

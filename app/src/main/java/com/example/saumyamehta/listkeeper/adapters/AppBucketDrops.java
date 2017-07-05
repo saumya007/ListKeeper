@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.google.firebase.database.FirebaseDatabase;
+
 /**
  * Created by saumyamehta on 6/27/17.
  */
@@ -17,6 +19,7 @@ public class AppBucketDrops extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
     public static void save(Context context, int filterOption) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);

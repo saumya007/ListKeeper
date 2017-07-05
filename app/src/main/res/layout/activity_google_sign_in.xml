@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/rels">
+        <ImageView
+            android:id="@+id/iv_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageView
+            android:id = "@+id/iv_logo"
+            android:layout_width="@dimen/iv_logo_width"
+            android:layout_height="@dimen/iv_logo_height"
+            android:src="@drawable/logo"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/iv_logo_margin"
+            />
+        <ImageButton
+            android:background="@drawable/bg_signin"
+            android:src="@drawable/googleg_standard_color_18"
+            android:id="@+id/button_google"
+            android:layout_width="160dp"
+            android:layout_height="60dp"
+            android:text="@string/str_add_drop"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/iv_logo"
+            android:fontFamily="sans-serif-thin"
+            android:layout_margin="10dp"
+            android:paddingLeft="@dimen/btn_add_padding_side"
+            android:paddingRight="@dimen/btn_add_padding_side"
+            android:paddingTop="@dimen/btn_add_padding_top_and_bottom"
+            android:paddingBottom="@dimen/btn_add_padding_top_and_bottom"
+            android:textSize="@dimen/btn_add_text_size"
+            android:textColor="@color/btn_add_color"
+            android:textAllCaps="false"/>
+        <ImageView
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:indeterminate="false"
+            android:max="10"
+
+            android:padding="4dip"
+            android:layout_below="@+id/button_google"
+            ></ImageView>
+        <!--<com.github.ybq.android.spinkit.SpinKitView-->
+            <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+            <!--android:id="@+id/spin_kit"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--style="@style/SpinKitView.Large.ChasingDots"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginLeft="125dp"-->
+            <!--android:layout_below="@+id/iv_logo"-->
+            <!--android:layout_marginTop="70dp"-->
+            <!--app:SpinKit_Color="@android:color/white" />-->
+    </RelativeLayout>
+</ScrollView>

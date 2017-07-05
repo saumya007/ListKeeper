@@ -9,6 +9,8 @@
     android:layout_marginTop="128dp"
     android:background="@drawable/btn_add_dynamic_back"
     android:text="@string/str_add_drop"
+    android:padding="10dp"
+    android:textColor="@android:color/white"
     android:fontFamily="sans-serif-thin"
     android:textAllCaps="false"
     android:textSize="@dimen/btn_add_text_size"

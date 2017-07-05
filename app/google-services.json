@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "81802329286-fjettkekstlghtraqb1d81lmbthf3bhu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.saumyamehta.listkeeper",
+            "certificate_hash": "7b059cfd8a9d31f7bf15bc0f474a8207b4b98060"
+          }
+        },
+        {
           "client_id": "81802329286-covbelf6cjpoigd43l2eb4hjk7sqnsl7.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81802329286-covbelf6cjpoigd43l2eb4hjk7sqnsl7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
