@@ -24,6 +24,7 @@ public class NotificationService extends IntentService {
     private DatabaseReference mDatabase;
     ArrayList<Drops> mResults;
     private FirebaseUser mUser;
+
     public NotificationService() {
         super("NotificationService");
         mResults = new ArrayList<>();
@@ -34,42 +35,42 @@ public class NotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if(mUser!=null)
-        {
+        if (mUser != null) {
             mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
-        }
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot mDatasnapshot : dataSnapshot.getChildren()) {
-                    boolean b = Boolean.parseBoolean(mDatasnapshot.child("completed").toString());
-                    if (!b) {
-                        Drops mDrops = new Drops(mDatasnapshot.child("what").getValue().toString(), Long.parseLong(mDatasnapshot.child("added").getValue().toString()),
-                                Long.parseLong(mDatasnapshot.child("when").getValue().toString()), Boolean.parseBoolean(mDatasnapshot.child("completed").getValue().toString()));
-                        mResults.add(mDrops);
+            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot mDatasnapshot : dataSnapshot.getChildren()) {
+                        boolean b = Boolean.parseBoolean(mDatasnapshot.child("completed").toString());
+                        if (!b) {
+                            Drops mDrops = new Drops(mDatasnapshot.child("what").getValue().toString(), Long.parseLong(mDatasnapshot.child("added").getValue().toString()),
+                                    Long.parseLong(mDatasnapshot.child("when").getValue().toString()), Boolean.parseBoolean(mDatasnapshot.child("completed").getValue().toString()));
+                            mResults.add(mDrops);
+                        }
+                    }
+                    for (Drops current : mResults) {
+                        if (isNotificationNeeded(current.getAdded(), current.getWhen())) {
+                            fireNotification(current);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-        for (Drops current : mResults) {
-            if (isNotificationNeeded(current.getAdded(), current.getWhen())) {
-                fireNotification(current);
-            }
+                }
+            });
+
         }
     }
 
     private void fireNotification(Drops mDrops) {
-        String message = "Congrats you are nearing your goal"+ mDrops.getWhat();
+        String message = "Congrats you are nearing your goal " + mDrops.getWhat();
         PugNotification.with(this)
                 .load()
                 .title("Achievement")
                 .message(message)
-                .bigTextStyle("You are about to complete your goal")
+                .bigTextStyle(message)
                 .smallIcon(R.drawable.ic_drop)
                 .flags(Notification.DEFAULT_ALL)
                 .autoCancel(true)

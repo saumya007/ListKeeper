@@ -180,7 +180,6 @@ public class GoogleSignIn extends AppCompatActivity{
     private class AsyncTaskActivity extends AsyncTask<Void,Void,String>{
         @Override
         protected String doInBackground(Void... params) {
-            mChasing.start();
             return null;
         }
 

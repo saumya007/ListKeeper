@@ -14,6 +14,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.saumyamehta.listkeeper.adapters.AppBucketDrops;
 import com.example.saumyamehta.listkeeper.beans.Drops;
@@ -41,6 +42,7 @@ public class DialogAdd extends DialogFragment {
     private Button mButtonAdd;
     private DatabaseReference mDatabase;
     FirebaseAuth mAuth;
+    private long now;
 
     public DialogAdd() {
 
@@ -52,32 +54,32 @@ public class DialogAdd extends DialogFragment {
             int id = v.getId();
             switch (id) {
                 case R.id.btn_add_it:
-
                     addAction();
                     break;
                 case R.id.btnClose:
 
                     break;
             }
-            dismiss();
+                dismiss();
+
         }
     };
 
     private void addAction() {
         String what = mInputWhat.getText().toString();
-        long now = System.currentTimeMillis();
+         now = System.currentTimeMillis();
         final FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 //        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
 //        Realm.setDefaultConfiguration(realmConfiguration);
 //        Realm realm = Realm.getDefaultInstance();
-        final Drops drop = new Drops(what, now, mInputWhen.getTime(), false);
+            final Drops drop = new Drops(what, now, mInputWhen.getTime(), false);
 
-        if (mUser != null) {
-            mDatabase = FirebaseDatabase.getInstance().getReference();
-            mDatabase.child(mUser.getDisplayName()).child("Drops").push().setValue(drop);
-        }
+            if (mUser != null) {
+                mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.child(mUser.getDisplayName()).child("Drops").push().setValue(drop);
+            }
 
-        Log.e("what", what);
+            Log.e("what", what);
         //        realm.copyToRealm(drop);
 //        realm.commitTransaction();
 //        realm.close();
