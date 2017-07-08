@@ -28,7 +28,7 @@ import java.util.Calendar;
  */
 
 public class BucketPickerView extends LinearLayout implements View.OnTouchListener {
-    private TextView mTextDate, mTextMonth, mTextYear;
+    private TextView mTextDate, mTextMonth, mTextYear, mTextHour, mTextMin;
     private Calendar mCalendar;
     private SimpleDateFormat mFormatter;
     public static final int LEFT = 0;
@@ -83,14 +83,20 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
         mTextDate = (TextView) this.findViewById(R.id.tv_date);
         mTextMonth = (TextView) this.findViewById(R.id.tv_month);
         mTextYear = (TextView) this.findViewById(R.id.tv_year);
-        AppBucketDrops.setRalewayThin(getContext(),mTextDate,mTextMonth,mTextYear);
+        mTextHour = (TextView) this.findViewById(R.id.tv_hours);
+        mTextMin = (TextView) this.findViewById(R.id.tv_mins);
+        AppBucketDrops.setRalewayThin(getContext(), mTextDate, mTextMonth, mTextYear, mTextHour, mTextMin);
         int date = mCalendar.get(Calendar.DATE);
         int month = mCalendar.get(Calendar.MONTH);
         int year = mCalendar.get(Calendar.YEAR);
-        update(date, month, year, 0, 0, 0);
+        int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+        int min = mCalendar.get(Calendar.MINUTE);
+        update(date, month, year, hour, min, 0);
         mTextDate.setOnTouchListener(this);
         mTextMonth.setOnTouchListener(this);
         mTextYear.setOnTouchListener(this);
+        mTextHour.setOnTouchListener(this);
+        mTextMin.setOnTouchListener(this);
     }
 
     private void update(int date, int month, int year, int hour, int min, int sec) {
@@ -98,15 +104,21 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
         mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MINUTE, min);
-        mCalendar.set(Calendar.HOUR, hour);
+        mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.SECOND, sec);
         mTextMonth.setText(mFormatter.format(mCalendar.getTime()));
         mTextDate.setText(date + "");
         mTextYear.setText(year + "");
+        mTextHour.setText(hour + "");
+        mTextMin.setText(min + "");
     }
 
     public long getTime() {
         return mCalendar.getTimeInMillis();
+    }
+    public String getExactTime()
+    {
+        return mTextHour.getText().toString() + " : "+ mTextHour.getText().toString();
     }
 
     @Override
@@ -120,6 +132,12 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
                 break;
             case R.id.tv_year:
                 processForEvents(mTextYear, event);
+                break;
+            case R.id.tv_hours:
+                processForEvents(mTextHour, event);
+                break;
+            case R.id.tv_mins:
+                processForEvents(mTextMin, event);
                 break;
         }
 
@@ -191,6 +209,12 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
             case R.id.tv_year:
                 mCalendar.add(Calendar.YEAR, 1);
                 break;
+            case R.id.tv_hours:
+                mCalendar.add(Calendar.HOUR_OF_DAY, 1);
+                break;
+            case R.id.tv_mins:
+                mCalendar.add(Calendar.MINUTE, 1);
+                break;
         }
         set(mCalendar);
     }
@@ -199,9 +223,13 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
         int date = mCalendar.get(Calendar.DATE);
         int month = mCalendar.get(Calendar.MONTH);
         int year = mCalendar.get(Calendar.YEAR);
+        int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+        int min = mCalendar.get(Calendar.MINUTE);
         mTextDate.setText(date + "");
         mTextYear.setText(year + "");
         mTextMonth.setText(mFormatter.format(mCalendar.getTime()));
+        mTextHour.setText(hour + "");
+        mTextMin.setText(min + "");
     }
 
     private void decrement(int id) {
@@ -214,6 +242,12 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
                 break;
             case R.id.tv_year:
                 mCalendar.add(Calendar.YEAR, -1);
+                break;
+            case R.id.tv_hours:
+                mCalendar.add(Calendar.HOUR_OF_DAY, -1);
+                break;
+            case R.id.tv_mins:
+                mCalendar.add(Calendar.MINUTE, -1);
                 break;
         }
         set(mCalendar);
@@ -253,6 +287,8 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
         bundle.putInt("date", mCalendar.get(Calendar.DATE));
         bundle.putInt("month", mCalendar.get(Calendar.MONTH));
         bundle.putInt("year", mCalendar.get(Calendar.YEAR));
+        bundle.putInt("hour", mCalendar.get(Calendar.HOUR_OF_DAY));
+        bundle.putInt("min", mCalendar.get(Calendar.MINUTE));
         return bundle;
     }
 
@@ -264,7 +300,9 @@ public class BucketPickerView extends LinearLayout implements View.OnTouchListen
             int date = bundle.getInt("date");
             int month = bundle.getInt("month");
             int year = bundle.getInt("year");
-            update(date, month, year, 0, 0, 0);
+            int hour = bundle.getInt("hour");
+            int min = bundle.getInt("min");
+            update(date, month, year, hour, min, 0);
         }
         super.onRestoreInstanceState(state);
     }

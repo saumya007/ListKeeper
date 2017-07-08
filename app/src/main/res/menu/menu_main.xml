@@ -14,7 +14,7 @@
     app:showAsAction="always"
     >
 </item>
-    <item android:title="None"
+    <item android:title="Activities"
         android:id="@+id/none"></item>
     <item android:title="@string/most_time_remaining"
         android:id="@+id/most_remaining"/>

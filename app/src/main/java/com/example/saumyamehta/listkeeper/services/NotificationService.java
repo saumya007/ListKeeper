@@ -4,7 +4,18 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 
+import com.example.saumyamehta.listkeeper.CustomTypefaceSpan;
+import com.example.saumyamehta.listkeeper.GoogleSignIn;
 import com.example.saumyamehta.listkeeper.MainActivity;
 import com.example.saumyamehta.listkeeper.R;
 import com.example.saumyamehta.listkeeper.beans.Drops;
@@ -17,6 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import br.com.goncalves.pugnotification.notification.PugNotification;
 
@@ -65,16 +77,24 @@ public class NotificationService extends IntentService {
     }
 
     private void fireNotification(Drops mDrops) {
-        String message = "Congrats you are nearing your goal " + mDrops.getWhat();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(mDrops.getWhen());
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Raleway-Thin.ttf");
+        SpannableString mNewTitle = new SpannableString(mDrops.getWhat().toString());
+        mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mNewTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mNewTitle.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getApplicationContext(),R.color.btn_add_selected)),0,mNewTitle.length(),Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        String message = "Congrats you are nearing your goal " + mNewTitle + " timed at : "+ calendar.get(Calendar.HOUR_OF_DAY) + " : " + calendar.get(Calendar.MINUTE);
         PugNotification.with(this)
                 .load()
                 .title("Achievement")
                 .message(message)
+                .color(R.color.btn_add_selected)
                 .bigTextStyle(message)
                 .smallIcon(R.drawable.ic_drop)
                 .flags(Notification.DEFAULT_ALL)
                 .autoCancel(true)
-                .click(MainActivity.class)
+                .click(GoogleSignIn.class)
                 .simple()
                 .build();
     }
@@ -84,8 +104,7 @@ public class NotificationService extends IntentService {
         if (now > when) {
             return false;
         } else {
-            long diff = (long) (0.9 * (when - now));
-            return (now > (added + diff)) ? true : false;
+            return (now >=(when-600000)) ? true : false;
         }
     }
 

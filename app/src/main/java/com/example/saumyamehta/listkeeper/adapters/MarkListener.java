@@ -6,4 +6,5 @@ package com.example.saumyamehta.listkeeper.adapters;
 
 public interface MarkListener {
     void onMark(int position);
+    void onConfirmed(int position);
 }

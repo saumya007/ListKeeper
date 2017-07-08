@@ -27,6 +27,7 @@
 
     <include
         android:id="@+id/empty_drops"
-        layout="@layout/empty_list" />
+        layout="@layout/empty_list"
+        android:visibility="gone"/>
 
 </RelativeLayout>

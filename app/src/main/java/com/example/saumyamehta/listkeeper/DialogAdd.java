@@ -60,8 +60,7 @@ public class DialogAdd extends DialogFragment {
 
                     break;
             }
-                dismiss();
-
+                    dismiss();
         }
     };
 
@@ -72,13 +71,18 @@ public class DialogAdd extends DialogFragment {
 //        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
 //        Realm.setDefaultConfiguration(realmConfiguration);
 //        Realm realm = Realm.getDefaultInstance();
-            final Drops drop = new Drops(what, now, mInputWhen.getTime(), false);
-
-            if (mUser != null) {
-                mDatabase = FirebaseDatabase.getInstance().getReference();
-                mDatabase.child(mUser.getDisplayName()).child("Drops").push().setValue(drop);
+            if(what.equals(null) || what.isEmpty() || what.equals(""))
+            {
+                Toast.makeText(getActivity(), "Oops ! you haven't mentioned your goal yet", Toast.LENGTH_SHORT).show();
             }
-
+            else {
+                final Drops drop = new Drops(what, now, mInputWhen.getTime(), false);
+                if (mUser != null) {
+                    mDatabase = FirebaseDatabase.getInstance().getReference();
+                    mDatabase.child(mUser.getDisplayName()).child("Drops").push().setValue(drop);
+                }
+            }
+        ((MainActivity)getActivity()).onResume();
             Log.e("what", what);
         //        realm.copyToRealm(drop);
 //        realm.commitTransaction();

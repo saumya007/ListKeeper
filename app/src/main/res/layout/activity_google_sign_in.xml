@@ -2,7 +2,8 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:scrollbars="none">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -21,23 +22,26 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="@dimen/iv_logo_margin"
             />
-        <ImageButton
+        <Button
             android:background="@drawable/bg_signin"
-            android:src="@drawable/googleg_standard_color_18"
             android:id="@+id/button_google"
-            android:layout_width="160dp"
-            android:layout_height="60dp"
-            android:text="@string/str_add_drop"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Tap to sign in"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/iv_logo"
             android:fontFamily="sans-serif-thin"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="10dp"
+            android:drawableLeft="@drawable/googleg_standard_color_18"
             android:paddingLeft="@dimen/btn_add_padding_side"
             android:paddingRight="@dimen/btn_add_padding_side"
             android:paddingTop="@dimen/btn_add_padding_top_and_bottom"
             android:paddingBottom="@dimen/btn_add_padding_top_and_bottom"
-            android:textSize="@dimen/btn_add_text_size"
-            android:textColor="@color/btn_add_color"
+            android:textSize="20sp"
+            android:textColor="@color/bg_dialog"
             android:textAllCaps="false"/>
         <ImageView
             android:id="@+id/progressBar1"
@@ -50,6 +54,7 @@
             android:padding="4dip"
             android:layout_below="@+id/button_google"
             ></ImageView>
+
         <!--<com.github.ybq.android.spinkit.SpinKitView-->
             <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
             <!--android:id="@+id/spin_kit"-->

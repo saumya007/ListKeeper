@@ -1,13 +1,20 @@
 package com.example.saumyamehta.listkeeper.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.format.DateUtils;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +23,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.saumyamehta.listkeeper.CustomTypefaceSpan;
 import com.example.saumyamehta.listkeeper.MainActivity;
 import com.example.saumyamehta.listkeeper.R;
 import com.example.saumyamehta.listkeeper.beans.Drops;
 import com.example.saumyamehta.listkeeper.extras.Util;
+import com.example.saumyamehta.listkeeper.widgets.BucketPickerView;
 import com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +40,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -56,6 +69,9 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private BucketRecyclerView mRecycler;
     private FirebaseUser mUser;
     private Context context;
+    private Drops mDrops;
+    private String mWhat;
+
 
     public AdapterDrops(Context context, ArrayList<Drops> results, DatabaseReference mDatabase) {
         mInflater = LayoutInflater.from(context);
@@ -74,23 +90,26 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.context = context;
         this.mResetListener = mResetListener;
         mUser = FirebaseAuth.getInstance().getCurrentUser();
+
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == FOOTER) {
             View rowView = mInflater.inflate(R.layout.footer, parent, false);
+
             return new FooterHolder(rowView);
         } else if (viewType == NO_ITEMS) {
             View rowView = mInflater.inflate(R.layout.no_items, parent, false);
             return new NoItemsHolder(rowView);
         } else {
             View rowView = mInflater.inflate(R.layout.row_drop, parent, false);
+
             return new DropHolder(rowView, markListener);
+
 
         }
     }
-
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof DropHolder) {
@@ -119,72 +138,44 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (!mResults.isEmpty()) {
             return mResults.size() + COUNT_FOOTER;
         } else {
-            if (mFilteroption == Filter.NONE || mFilteroption == Filter.LEAST_TIME_LEFT || mFilteroption == Filter.MOST_TIME_LEFT) {
-                return 0;
-            } else {
                 return COUNT_FOOTER + COUNT_NO_ITEMS;
-            }
+
         }
     }
 
     @Override
     public void onSwipe(final int position, final RecyclerView.ViewHolder viewholder) {
-        Log.e("oh", "oh1");
-        if (position < mResults.size()) {
-            final boolean[] removed = {false};
-            Log.e("oh", "oh");
-            if (mUser != null) {
-                mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
-            }
-            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        if (ds.child("what").getValue().toString().equals(mResults.get(position).getWhat())) {
-                            Log.e("hola", position + "pos" + ds.child("what").getValue().toString() + "what" + mResults.get(position).getWhat() +
-                                    "res");
-                            ds.getRef().removeValue();
-                            Log.e("ref", ds.getRef() + "");
 
-                        }
+        if (mUser != null) {
+            mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+        }
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (ds.child("what").getValue().toString().equals(mResults.get(position).getWhat())) {
+                        mWhat = ds.child("what").getValue().toString();
+                        mDrops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString())
+                                , Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
 
                     }
-                    mRecycler.removeViewAt(position);
-                    mResults.remove(position);
-                    notifyItemRemoved(position);
-                    resetFilterifempty();
-                    mResults.clear();
-                    notifyDataSetChanged();
-                    mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot mds : dataSnapshot.getChildren()) {
-                                Drops ds = new Drops(mds.child("what").getValue().toString(), Long.parseLong(mds.child("added").getValue().toString()),
-                                        Long.parseLong(mds.child("when").getValue().toString()), Boolean.parseBoolean(mds.child("completed").getValue().toString()));
-                                mResults.add(ds);
-                                notifyDataSetChanged();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });
+                markListener.onConfirmed(position);
+            }
 
-        }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void resetFilterifempty() {
         if (mResults.isEmpty() && (mFilteroption == Filter.COMPLETED || mFilteroption == Filter.INCOMPLETE)) {
             mResetListener.onReset();
+            Log.e("onReset", "true");
         }
     }
 
@@ -227,12 +218,77 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    public void confirm(final int position) {
+        if (position < mResults.size()) {
+            Log.e("oh", "oh");
+            if (mUser != null) {
+                mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+            }
+            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.child("what").getValue().toString().equals(mResults.get(position).getWhat())) {
+                            Log.e("hola", position + "pos" + ds.child("what").getValue().toString() + "what" + mResults.get(position).getWhat() +
+                                    "res");
+                            ds.getRef().removeValue();
+                            Log.e("ref", ds.getRef() + "");
+
+                        }
+
+                    }
+                    mRecycler.removeViewAt(position);
+                    mResults.remove(position);
+                    notifyItemRemoved(position);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            resetFilterifempty();
+
+        }
+
+    }
+
+    public void cancelled(final int position) {
+        if (mUser != null) {
+            mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+        }
+
+        mDatabase.push().setValue(mDrops);
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (ds.child("what").getValue().toString().equals(mResults.get(position).getWhat())) {
+                        mDrops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString())
+                                , Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
+                        mRecycler.removeViewAt(position);
+                        mResults.remove(position);
+                        notifyItemRemoved(position);
+                        mResults.add(mDrops);
+                        notifyItemInserted(position);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public static class DropHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView mIconimage;
         private TextView mTextwhat, mTextwhen;
         private MarkListener mMarklistener;
         Context mContext;
         View mItemView;
+        private BucketPickerView mPicker;
 
         public DropHolder(View itemView, MarkListener markListener) {
             super(itemView);
@@ -244,6 +300,7 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mMarklistener = markListener;
             mItemView = itemView;
             AppBucketDrops.setRalewayThin(mContext, mTextwhat, mTextwhen);
+            mPicker = new BucketPickerView(mContext);
 
         }
 
@@ -270,7 +327,9 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
 
         public void setWhen(long when) {
-            mTextwhen.setText(DateUtils.getRelativeTimeSpanString(when, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(when);
+            mTextwhen.setText(DateUtils.getRelativeTimeSpanString(when, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) + " at : "+calendar.get(Calendar.HOUR_OF_DAY)+ " : "+ calendar.get(Calendar.MINUTE));
         }
     }
 
@@ -288,8 +347,16 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public FooterHolder(View itemView) {
             super(itemView);
             mAddbtn = (Button) itemView.findViewById(R.id.footer_btn);
+            if (AppBucketDrops.load(context) == Filter.COMPLETED | AppBucketDrops.load(context) == Filter.INCOMPLETE) {
+                mAddbtn.setVisibility(View.GONE);
+            } else {
+                if (mAddbtn.getVisibility() == View.GONE) {
+                    mAddbtn.setVisibility(View.VISIBLE);
+                }
+            }
             mAddbtn.setOnClickListener(this);
             AppBucketDrops.setRalewayThin(context, mAddbtn);
+
 
         }
 
@@ -310,15 +377,14 @@ public class AdapterDrops extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
 
         } else {
-            if (mFilteroption == Filter.COMPLETED || mFilteroption == Filter.INCOMPLETE) {
+
                 if (position == 0) {
                     return NO_ITEMS;
                 } else {
                     return FOOTER;
                 }
-            } else {
-                return ITEM;
             }
+
         }
     }
-}
+

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/bg_dialog">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/title_margin_vertical"
+            android:layout_marginTop="@dimen/title_margin_vertical"
+            android:text="Confirmation"
+            android:textSize="@dimen/title_text_size_dialog_head" />
+
+        <TextView
+            android:id="@+id/et_drop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title"
+            android:layout_marginTop="40dp"
+            android:layout_centerHorizontal="true"
+            android:textSize="@dimen/title_text_size_dialog_head"
+            android:text="Are you Sure you want to delete this item?"
+            android:padding="@dimen/et_drop_padding" />
+
+
+        <Button
+            android:layout_below="@+id/et_drop"
+            android:id="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            android:textSize="@dimen/title_text_size"
+            android:background="@drawable/btn_addit"
+            android:textAllCaps="false"
+            android:layout_marginTop="84dp"
+            android:layout_alignParentLeft="true"
+
+             />
+
+        <Button
+            android:layout_below="@+id/et_drop"
+            android:id="@+id/btn_close_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textSize="@dimen/title_text_size"
+            android:background="@drawable/btn_addit"
+            android:textAllCaps="false"
+            android:layout_marginTop="84dp"
+            android:layout_alignParentRight="true"
+
+            />
+        <ImageView
+            android:id="@+id/point_confirm"
+            android:layout_below="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            app:srcCompat="@drawable/pointer" />
+
+        <TextView
+            android:id="@+id/pointer_helper_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxEms="7"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-thin"
+            android:layout_marginTop="24dp"
+            android:text="Click the button above to confirm"
+            android:layout_below="@+id/point_confirm"
+             />
+        <ImageView
+            android:id="@+id/point_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/pointer"
+            android:layout_marginTop="40dp"
+
+            android:layout_below="@+id/btn_close_dialog"
+            android:layout_alignParentRight="true"
+             />
+
+        <TextView
+            android:id="@+id/pointer_helper_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxEms="7"
+            android:layout_below="@+id/point_cancel"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-thin"
+            android:text="Click the button above to cancel"
+            android:layout_marginTop="24dp"
+            android:layout_alignParentRight="true"
+             />
+    </RelativeLayout>
+</ScrollView>

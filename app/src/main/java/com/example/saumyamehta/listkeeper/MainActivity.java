@@ -1,5 +1,6 @@
 package com.example.saumyamehta.listkeeper;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,12 +21,15 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import android.widget.ImageView;
@@ -38,6 +43,9 @@ import com.example.saumyamehta.listkeeper.adapters.AdapterDrops;
 import com.example.saumyamehta.listkeeper.adapters.AdapterListener;
 import com.example.saumyamehta.listkeeper.adapters.AppBucketDrops;
 import com.example.saumyamehta.listkeeper.adapters.CompleteListener;
+import com.example.saumyamehta.listkeeper.adapters.ConfirmListener;
+import com.example.saumyamehta.listkeeper.adapters.CustomShowcaseActivity;
+import com.example.saumyamehta.listkeeper.adapters.CustomViewTarget;
 import com.example.saumyamehta.listkeeper.adapters.Divider;
 import com.example.saumyamehta.listkeeper.adapters.Filter;
 import com.example.saumyamehta.listkeeper.adapters.MarkListener;
@@ -47,6 +55,9 @@ import com.example.saumyamehta.listkeeper.beans.Drops;
 import com.example.saumyamehta.listkeeper.extras.Util;
 import com.example.saumyamehta.listkeeper.services.NotificationService;
 import com.example.saumyamehta.listkeeper.widgets.BucketRecyclerView;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.ShowcaseViewApi;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -73,11 +84,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import br.com.goncalves.pugnotification.interfaces.ImageLoader;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 import static android.support.v4.app.DialogFragment.STYLE_NO_FRAME;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private static final String TAG = "hahah";
+    private static final long ROW_LIST =2;
+    private static final long FIRST_LIST = 3;
+    private static final long FOOTER_LIST =4 ;
+    private static final long ADD_DROPS_MENU = 5;
+    private static final long MENU_DROPS = 6;
+    private static final long LOGOUT_DROPS = 7;
+    private static final long COMPLETE = 8;
     private Toolbar mToolbar;
     private Button mButton;
     private BucketRecyclerView mBucketRecyclerView;
@@ -86,10 +108,12 @@ public class MainActivity extends AppCompatActivity {
     private AdapterDrops mAdapterdrops;
     private View mEmptyview;
     private boolean mark;
+    private int counter = 0;
 
     private FirebaseUser mUser;
     private Menu menu;
-
+    private ShowcaseView showcaseView;
+    public static  ArrayList<Drops> mRes;
     private AdapterListener mAddListener = new AdapterListener() {
         @Override
         public void add() {
@@ -101,12 +125,30 @@ public class MainActivity extends AppCompatActivity {
         public void onMark(int position) {
             showDialogMark(position);
         }
+
+        @Override
+        public void onConfirmed(int position) {
+            showDialogConfirm(position);
+        }
     };
+
+
     private CompleteListener mCompleteListener = new CompleteListener() {
         @Override
         public void onComplete(int position) {
             mAdapterdrops.markComplete(position);
 
+        }
+    };
+    private ConfirmListener mConfirmListener = new ConfirmListener() {
+        @Override
+        public void onConfirm(int position) {
+            mAdapterdrops.confirm(position);
+        }
+
+        @Override
+        public void onCancel(int position) {
+            mAdapterdrops.cancelled(position);
         }
     };
     private ResetListener mResetListener = new ResetListener() {
@@ -116,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
             loadResults(Filter.NONE);
         }
     };
+    private String SEQ_ID = "one";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,13 +177,15 @@ public class MainActivity extends AppCompatActivity {
         mEmptyview = findViewById(R.id.empty_drops);
         LinearLayoutManager mLinearlayoutmanager = new LinearLayoutManager(this);
         mBucketRecyclerView.setLayoutManager(mLinearlayoutmanager);
-        mBucketRecyclerView.hideIfempty(mToolbar);
-        mBucketRecyclerView.showIfempty(mEmptyview);
+        mRes = new ArrayList<>();
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         SharedPreferences sharedPreferences = getSharedPreferences("My Pref", MODE_PRIVATE);
+        final Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Raleway-Thin.ttf");
         int mFilteroption = AppBucketDrops.load(this);
         loadResults(mFilteroption);
         if (sharedPreferences == null) {
+            Util.scheduleAlarms(this);
+
             Log.e("mRes", mResults.size() + "");
             if (mUser != null) {
                 mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
@@ -157,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
                             mAdapterdrops.notifyDataSetChanged();
                         }
                     }
+
+
 
                 }
 
@@ -184,12 +231,254 @@ public class MainActivity extends AppCompatActivity {
 
             mBucketRecyclerView.setAdapter(mAdapterdrops);
             mAdapterdrops.setAddlistener(mAddListener);
-            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
             ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
             mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
 
             initBackgroundImage();
+//
+
         } else if (mFilteroption == Filter.NONE) {
+
+            if (mUser != null) {
+                mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
+            }
+            final Animation fade = AnimationUtils.loadAnimation(getApplicationContext(),
+                    R.anim.fade);
+            mDatabase.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d("Yo", "I am here");
+                    if (mResults.size() > 0) {
+                        Drops mDrops = new Drops(dataSnapshot.child("what").getValue().toString(), Long.parseLong(dataSnapshot.child("added").getValue().toString()),
+                                Long.parseLong(dataSnapshot.child("when").getValue().toString()), Boolean.parseBoolean(dataSnapshot.child("completed").getValue().toString()));
+                        int count = 0;
+                        for (Drops drops : mResults) {
+
+                            Log.e("ahhahaha", drops.getWhat() + "hulu" + mDrops.getWhat() + "");
+                            if (!drops.getWhat().equals(mDrops.getWhat())) {
+                                count++;
+                            }
+                            if (count >= mResults.size()) {
+                                mResults.add(mDrops);
+                                mAdapterdrops.notifyDataSetChanged();
+                                Log.d("Yo", "objects" + mDrops.getWhat());
+                                count = 0;
+                            }
+                        }
+                    }
+                    else if (mResults.size() == 0 && mark) {
+
+                            Drops mDrops = new Drops(dataSnapshot.child("what").getValue().toString(), Long.parseLong(dataSnapshot.child("added").getValue().toString()),
+                                    Long.parseLong(dataSnapshot.child("when").getValue().toString()), Boolean.parseBoolean(dataSnapshot.child("completed").getValue().toString()));
+                                mResults.add(mDrops);
+                                Log.e("Size", mResults.size() + "");
+                                mAdapterdrops.notifyDataSetChanged();
+                                Log.d("Yo", "objects" + mDrops.getWhat());
+                        if(mResults.size()>0) {
+                            String fontPath = "fonts/Raleway-Thin.ttf";
+                            Typeface mTypeFace = Typeface.createFromAsset(getAssets(), fontPath);
+
+                            TextPaint titlePaint = new TextPaint();
+                            titlePaint.setTextSize(150);
+                            titlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.text_title));
+                            titlePaint.setAntiAlias(true);
+                            titlePaint.setTypeface(mTypeFace);
+                            TextPaint textPaint = new TextPaint();
+                            textPaint.setTextSize(55);
+                            textPaint.setColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                            textPaint.setAntiAlias(true);
+                            textPaint.setTypeface(mTypeFace);
+                            showcaseView = new ShowcaseView.Builder(MainActivity.this, true)
+                                    .setTarget(new CustomViewTarget(R.id.recycler, -80, -90, MainActivity.this))
+                                    .setContentTitle("Activities")
+                                    .setContentText("Here the activities entered by users are stored here. Click on the task to complete it or swipe right to delete the task")
+                                    .setContentTitlePaint(titlePaint)
+                                    .setContentTextPaint(textPaint)
+                                    .setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            showcaseView.hide();
+                                            switch (counter) {
+                                                case 0:
+                                                    String fontPath = "fonts/Raleway-Thin.ttf";
+                                                    Typeface mTypeFace = Typeface.createFromAsset(getAssets(), fontPath);
+                                                    TextPaint titlePaint = new TextPaint();
+                                                    titlePaint.setTextSize(150);
+                                                    titlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.text_title));
+                                                    titlePaint.setAntiAlias(true);
+                                                    titlePaint.setTypeface(mTypeFace);
+                                                    TextPaint textPaint = new TextPaint();
+                                                    textPaint.setTextSize(55);
+                                                    textPaint.setColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                                                    textPaint.setAntiAlias(true);
+                                                    textPaint.setTypeface(mTypeFace);
+                                                    showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                                                            .setTarget(new CustomViewTarget(R.id.footer_btn, 150, 100, MainActivity.this))
+                                                            .setContentTitle("Add A Drop")
+                                                            .setContentText("Click the button to add a new task")
+                                                            .setContentTitlePaint(titlePaint)
+                                                            .setContentTextPaint(textPaint)
+                                                            .setOnClickListener(new View.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(View v) {
+                                                                    switch (counter) {
+                                                                        case 0:
+                                                                            showcaseView.hide();
+                                                                            String fontPath = "fonts/Raleway-Thin.ttf";
+                                                                            Typeface mTypeFace = Typeface.createFromAsset(getAssets(), fontPath);
+                                                                            TextPaint titlePaint = new TextPaint();
+                                                                            titlePaint.setTextSize(150);
+                                                                            titlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.text_title));
+                                                                            titlePaint.setAntiAlias(true);
+                                                                            titlePaint.setTypeface(mTypeFace);
+                                                                            TextPaint textPaint = new TextPaint();
+                                                                            textPaint.setTextSize(55);
+                                                                            textPaint.setColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                                                                            textPaint.setAntiAlias(true);
+                                                                            textPaint.setTypeface(mTypeFace);
+                                                                            showcaseView = new ShowcaseView.Builder(MainActivity.this, true)
+                                                                                    .setTarget(new CustomViewTarget(R.id.add_menu, 50, 10, MainActivity.this))
+                                                                                    .setContentTitle("Add A Drop")
+                                                                                    .setContentText("Click the button to add a new task")
+                                                                                    .setContentTitlePaint(titlePaint)
+                                                                                    .setContentTextPaint(textPaint)
+                                                                                    .setOnClickListener(new View.OnClickListener() {
+                                                                                        @Override
+                                                                                        public void onClick(View v) {
+                                                                                            switch (counter) {
+                                                                                                case 0:
+                                                                                                    showcaseView.hide();
+                                                                                                    String fontPath = "fonts/Raleway-Thin.ttf";
+                                                                                                    Typeface mTypeFace = Typeface.createFromAsset(getAssets(), fontPath);
+                                                                                                    TextPaint titlePaint = new TextPaint();
+                                                                                                    titlePaint.setTextSize(150);
+                                                                                                    titlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.text_title));
+                                                                                                    titlePaint.setAntiAlias(true);
+                                                                                                    titlePaint.setTypeface(mTypeFace);
+                                                                                                    TextPaint textPaint = new TextPaint();
+                                                                                                    textPaint.setTextSize(55);
+                                                                                                    textPaint.setColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                                                                                                    textPaint.setAntiAlias(true);
+                                                                                                    textPaint.setTypeface(mTypeFace);
+                                                                                                    showcaseView = new ShowcaseView.Builder(MainActivity.this, true)
+                                                                                                            .setTarget(new CustomViewTarget(R.id.add_menu, 270, 10, MainActivity.this))
+                                                                                                            .setContentTitle("Sort")
+                                                                                                            .setContentText("Organise your Activities in 4 customiszable modes")
+                                                                                                            .setContentTitlePaint(titlePaint)
+                                                                                                            .setContentTextPaint(textPaint)
+                                                                                                            .setOnClickListener(new View.OnClickListener() {
+                                                                                                                @Override
+                                                                                                                public void onClick(View v) {
+                                                                                                                    switch (counter) {
+                                                                                                                        case 0:
+                                                                                                                            showcaseView.hide();
+                                                                                                                            String fontPath = "fonts/Raleway-Thin.ttf";
+                                                                                                                            Typeface mTypeFace = Typeface.createFromAsset(getAssets(), fontPath);
+                                                                                                                            TextPaint titlePaint = new TextPaint();
+                                                                                                                            titlePaint.setTextSize(150);
+                                                                                                                            titlePaint.setColor(ContextCompat.getColor(getApplicationContext(), R.color.text_title));
+                                                                                                                            titlePaint.setAntiAlias(true);
+                                                                                                                            titlePaint.setTypeface(mTypeFace);
+                                                                                                                            TextPaint textPaint = new TextPaint();
+                                                                                                                            textPaint.setTextSize(55);
+                                                                                                                            textPaint.setColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+                                                                                                                            textPaint.setAntiAlias(true);
+                                                                                                                            textPaint.setTypeface(mTypeFace);
+                                                                                                                            showcaseView = new ShowcaseView.Builder(MainActivity.this, true)
+                                                                                                                                    .setTarget(new CustomViewTarget(R.id.add_menu, -120, 10, MainActivity.this))
+                                                                                                                                    .setContentTitle("Logout")
+                                                                                                                                    .setContentText("Click the button to sign out")
+                                                                                                                                    .setContentTitlePaint(titlePaint)
+                                                                                                                                    .setContentTextPaint(textPaint)
+                                                                                                                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                                                                                                                    .singleShot(LOGOUT_DROPS)
+                                                                                                                                    .build();
+                                                                                                                            showcaseView.startAnimation(fade);
+                                                                                                                            break;
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            })
+                                                                                                            .setStyle(R.style.CustomShowcaseTheme2)
+                                                                                                            .singleShot(MENU_DROPS)
+                                                                                                            .build();
+                                                                                                    showcaseView.startAnimation(fade);
+                                                                                                    break;
+                                                                                            }
+                                                                                        }
+                                                                                    })
+                                                                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                                                                    .singleShot(ADD_DROPS_MENU)
+                                                                                    .build();
+                                                                            showcaseView.startAnimation(fade);
+                                                                            break;
+                                                                    }
+                                                                }
+                                                            })
+                                                            .setStyle(R.style.CustomShowcaseTheme2)
+                                                            .singleShot(FOOTER_LIST)
+                                                            .build();
+                                                    showcaseView.startAnimation(fade);
+                                                    break;
+                                            }
+                                        }
+                                    })
+                                    .singleShot(ROW_LIST)
+                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                    .build();
+                            showcaseView.startAnimation(fade);
+                        }
+
+
+                    }
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
+            mAdapterdrops.setHasStableIds(true);
+            mBucketRecyclerView.setAdapter(mAdapterdrops);
+            mAdapterdrops.setAddlistener(mAddListener);
+            Log.e("rec", mBucketRecyclerView.getAdapter() + "");
+            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
+            ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
+            mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
+            initBackgroundImage();
+
+
+
+        }
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialogAdd();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (AppBucketDrops.load(getApplicationContext()) == Filter.NONE) {
             if (mUser != null) {
                 mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
             }
@@ -220,17 +509,18 @@ public class MainActivity extends AppCompatActivity {
 //                            mAdapterdrops.notifyDataSetChanged();
 //                            Log.d("Yo", "objects" + mDrops.getWhat());
 //                        }
-                    } else if (mResults.size() == 0 && mark) {
-
-                        Drops mDrops = new Drops(dataSnapshot.child("what").getValue().toString(), Long.parseLong(dataSnapshot.child("added").getValue().toString()),
-                                Long.parseLong(dataSnapshot.child("when").getValue().toString()), Boolean.parseBoolean(dataSnapshot.child("completed").getValue().toString()));
-                        if (!mResults.contains(mDrops)) {
-                            mResults.add(mDrops);
-                            Log.e("Size", mResults.size() + "");
-                            mAdapterdrops.notifyDataSetChanged();
-                            Log.d("Yo", "objects" + mDrops.getWhat());
-                        }
                     }
+//                    else if (mResults.size() == 0 && mark) {
+//
+//                        Drops mDrops = new Drops(dataSnapshot.child("what").getValue().toString(), Long.parseLong(dataSnapshot.child("added").getValue().toString()),
+//                                Long.parseLong(dataSnapshot.child("when").getValue().toString()), Boolean.parseBoolean(dataSnapshot.child("completed").getValue().toString()));
+//                        if (!mResults.contains(mDrops)) {
+//                            mResults.add(mDrops);
+//                            Log.e("Size", mResults.size() + "");
+//                            mAdapterdrops.notifyDataSetChanged();
+//                            Log.d("Yo", "objects" + mDrops.getWhat());
+//                        }
+//                    }
 
                 }
 
@@ -258,25 +548,11 @@ public class MainActivity extends AppCompatActivity {
             mAdapterdrops.setHasStableIds(true);
             mBucketRecyclerView.setAdapter(mAdapterdrops);
             mAdapterdrops.setAddlistener(mAddListener);
-            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
             ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
             mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
             initBackgroundImage();
         }
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialogAdd();
-            }
-        });
-
-        Util.scheduleAlarms(this);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
 
@@ -318,21 +594,29 @@ public class MainActivity extends AppCompatActivity {
                 showDialogAdd();
                 break;
             case R.id.least_remaining:
+                menu.findItem(R.id.add_menu).setVisible(true);
                 mFilteroption = Filter.LEAST_TIME_LEFT;
                 break;
             case R.id.most_remaining:
+                menu.findItem(R.id.add_menu).setVisible(true);
                 mFilteroption = Filter.MOST_TIME_LEFT;
+
                 break;
             case R.id.completed:
+                menu.findItem(R.id.add_menu).setVisible(false);
                 mFilteroption = Filter.COMPLETED;
                 break;
             case R.id.incomplete:
+                menu.findItem(R.id.add_menu).setVisible(false);
                 mFilteroption = Filter.INCOMPLETE;
                 break;
             case R.id.none:
+                menu.findItem(R.id.add_menu).setVisible(true);
                 mFilteroption = Filter.NONE;
+                break;
             case R.id.profile:
                 logout();
+                break;
             default:
                 handled = false;
                 break;
@@ -370,7 +654,7 @@ public class MainActivity extends AppCompatActivity {
                             mAdapterdrops.setHasStableIds(true);
                             mBucketRecyclerView.setAdapter(mAdapterdrops);
                             mAdapterdrops.setAddlistener(mAddListener);
-                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
                             ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
                             mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
                             mAdapterdrops.notifyDataSetChanged();
@@ -410,7 +694,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         mAdapterdrops.setAddlistener(mAddListener);
-                        SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+                        SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
                         ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
                         mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
                         mAdapterdrops.notifyDataSetChanged();
@@ -448,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("Mres size", mResults.size() + "");
                             mBucketRecyclerView.setAdapter(mAdapterdrops);
                             mAdapterdrops.setAddlistener(mAddListener);
-                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
                             ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
                             mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
 
@@ -464,7 +748,6 @@ public class MainActivity extends AppCompatActivity {
 //
                 break;
             case Filter.INCOMPLETE:
-
                 if (mUser != null) {
                     mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
                 }
@@ -489,7 +772,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("Mres size", mResults.size() + "");
                             mBucketRecyclerView.setAdapter(mAdapterdrops);
                             mAdapterdrops.setAddlistener(mAddListener);
-                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
+                            SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
                             ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
                             mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
                             initBackgroundImage();
@@ -505,49 +788,50 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case Filter.NONE:
                 mResults.clear();
+                final int[] count = new int[1];
                 mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
                 mAdapterdrops.setHasStableIds(true);
-
-                mAdapterdrops.notifyDataSetChanged();
                 if (mUser != null) {
                     mDatabase = FirebaseDatabase.getInstance().getReference().child(mUser.getDisplayName()).child("Drops");
-                }
-                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            Drops drops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString()), Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
-                            Log.e("Drops", drops.getWhat());
-                            if (mResults.size() > 0) {
-                                for (int i = 0; i < mResults.size(); i++) {
-                                    if (!mResults.get(i).getWhat().equals(drops.getWhat())) {
-                                        mResults.add(drops);
-                                        mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
-                                        mAdapterdrops.setHasStableIds(true);
+                    mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
-                                        mBucketRecyclerView.setAdapter(mAdapterdrops);
-                                        mAdapterdrops.setAddlistener(mAddListener);
-                                        SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(mAdapterdrops);
-                                        ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
-                                        mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
-                                        mAdapterdrops.notifyDataSetChanged();
+                                Drops drops = new Drops(ds.child("what").getValue().toString(), Long.parseLong(ds.child("added").getValue().toString()), Long.parseLong(ds.child("when").getValue().toString()), Boolean.parseBoolean(ds.child("completed").getValue().toString()));
+                                Log.e("Drops", drops.getWhat());
+                                mAdapterdrops = new AdapterDrops(mBucketRecyclerView, getApplicationContext(), mResults, mAddListener, mMarkListener, mResetListener);
+                                mAdapterdrops.setHasStableIds(true);
+                                for(int i=0;i<mResults.size();i++)
+                                {
+                                    if(!mResults.get(i).getWhat().equals(drops.getWhat().toString()))
+                                    {
+                                        count[0]++;
                                     }
                                 }
+                                if(count[0]>=mResults.size())
+                                {
+                                    mResults.add(drops);
+                                }
+                                mAdapterdrops.notifyDataSetChanged();
+                                mBucketRecyclerView.setAdapter(mAdapterdrops);
+                                mAdapterdrops.setAddlistener(mAddListener);
+                                SimpleTouchCallBack mSimpletouchcallback = new SimpleTouchCallBack(getApplicationContext(), mAdapterdrops);
+                                ItemTouchHelper mItemtouchhelper = new ItemTouchHelper(mSimpletouchcallback);
+                                mItemtouchhelper.attachToRecyclerView(mBucketRecyclerView);
+
                             }
+                            Log.e("count", mAdapterdrops.getItemCount() + "" + "size" + mResults.size());
+
                         }
-                        Log.e("count", mAdapterdrops.getItemCount() + "" + "size" + mResults.size());
 
-                    }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                        }
+                    });
+                }
                 mark = true;
-                break;
-            default:
-
                 break;
         }
     }
@@ -565,6 +849,16 @@ public class MainActivity extends AppCompatActivity {
         dialogMark.setArguments(mBundle);
         dialogMark.setCompleteListener(mCompleteListener);
         dialogMark.show(getSupportFragmentManager(), "Mark");
+
+    }
+
+    private void showDialogConfirm(int position) {
+        DialogConfirm dialogMark = new DialogConfirm();
+        Bundle mBundle = new Bundle();
+        mBundle.putInt("POSITION", position);
+        dialogMark.setArguments(mBundle);
+        dialogMark.setConfirmListener(mConfirmListener);
+        dialogMark.show(getSupportFragmentManager(), "Confirm");
     }
 
     private void initBackgroundImage() {
@@ -578,8 +872,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        finish();
     }
-
 
 }

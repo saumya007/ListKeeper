@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
@@ -8,6 +15,7 @@
     <TextView
         android:id="@+id/tv_month"
         style="@style/datepickeritemstyles"
+        android:background="@drawable/round"
         android:text="@string/jan" />
 
     <android.support.v4.widget.Space
@@ -16,6 +24,7 @@
 
     <TextView
         android:id="@+id/tv_date"
+        android:background="@drawable/round"
 
         style="@style/datepickeritemstyles"
 
@@ -27,7 +36,35 @@
 
     <TextView
         android:id="@+id/tv_year"
+        android:background="@drawable/round"
+
         style="@style/datepickeritemstyles"
 
         android:text="@string/_2017" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="center">
+
+    <TextView
+        android:id="@+id/tv_hours"
+        android:background="@drawable/round"
+
+        style="@style/datepickeritemstyles"
+
+        android:text="@string/tv_9" />
+    <android.support.v4.widget.Space
+        android:layout_width="@dimen/bpv_space"
+        android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/tv_mins"
+        android:background="@drawable/round"
+
+        style="@style/datepickeritemstyles"
+
+        android:text="@string/tv_30" />
+</LinearLayout>
 </LinearLayout>

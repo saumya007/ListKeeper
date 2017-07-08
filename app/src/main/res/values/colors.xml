@@ -6,8 +6,10 @@
     <color name="btn_add_selected">#05FFCA</color>
     <color name="btn_add_normal">#B691FF</color>
     <color name="btn_add_text_selected">#241543</color>
-    <color name="bg_drop_row_dark">#BD8E79BB</color>
+    <color name="bg_drop_row_dark">#BD8E79DD</color>
     <color name="bg_drop_row_light">#4A8E79BB</color>
     <color name="bg_dialog">#E30D0028</color>
     <color name="bg_row_drop_completed">#ED8E79BB</color>
+    <color name="custom_showcase_bg">#b9002153</color>
+    <color name="text_title">#03A9F4</color>
 </resources>
